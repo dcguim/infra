@@ -1,0 +1,16 @@
+autoconf
+automake
+openssl
+pkgconfig
+gnutls
+texinfo
+makeinfo
+texlive-basic
+texlive-common
+texlive-fonts-recommended 
+texlive-latex 
+texlive-latex-extra 
+texlive-latex-recommended 
+texlive-xetex 
+texlive-basic
+texlive-common

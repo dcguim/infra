@@ -16,3 +16,4 @@ texlive-basic
 texlive-common
 python38
 py38-pip
+py38-virtualenv

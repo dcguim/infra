@@ -3,6 +3,10 @@ if [ "$EUID" -ne 0 ]
   then echo "Please run this script as root"
   exit
 fi
+if [ -z "${ZDOTDIR}" ]
+   then "Please provide the z dot files directory"
+   exit
+fi
 git clone git://git.savannah.gnu.org/emacs.git /Applications/emacs
 cd /Applications/emacs/
 ./autogen.sh
@@ -11,5 +15,5 @@ cd /Applications/emacs/
 ./make install
 ln -s /Applications/emacs/src/emacs /usr/local/bin/emacsclient
 git config --global core.editor "emacs -nw"
-echo -e "emacs(){\nnohup emacsclient \"\$1\" >/dev/null 2>&1 &\n}" >> ~/.zprofile
-source ~/.zprofile
+echo -e "emacs(){\nif [ -n \"\$1\" ]; then\n  nohup emacsclient \"\$1\" >/dev/null 2>&1 &\nelse\n  nohup emacsclient >/dev/null 2>&1 &\n}" >> $ZDOTDIR/.zshrc
+source ~/.zshrc

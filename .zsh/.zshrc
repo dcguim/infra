@@ -19,3 +19,11 @@ export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk8/Contents/Home"
 
 # The following third party configurations should be configured by the
 # application itself.
+# The following lines were added by compinstall
+
+zstyle ':completion:*' completer _complete _ignored _approximate
+zstyle :compinstall filename '/Users/dguim/work/infra/.zsh/.zshrc'
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall

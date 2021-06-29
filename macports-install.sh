@@ -10,7 +10,7 @@ cd MacPorts-2.6.4/
 ./configure
 make
 sudo make install
-echo -e "# add path for macports binaries\nexport PATH=\"/opt/local/bin/:\$PATH\"" >> ~/.zprofile
-source ~/.zprofile
+echo -e "# add path for macports binaries\nexport PATH=\"/opt/local/bin/:\$PATH\"" >> $ZDOTDIR/.zshrc
+source $ZDOTDIR/.zshrc
 port -v selfupdate
 cat macports.txt | sudo xargs port install $1

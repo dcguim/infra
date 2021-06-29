@@ -15,5 +15,5 @@ cd /Applications/emacs/
 ./make install
 ln -s /Applications/emacs/src/emacs /usr/local/bin/emacsclient
 git config --global core.editor "emacs -nw"
-echo -e "emacs(){\nif [ -n \"\$1\" ]; then\n  nohup emacsclient \"\$1\" >/dev/null 2>&1 &\nelse\n  nohup emacsclient >/dev/null 2>&1 &\n}" >> $ZDOTDIR/.zshrc
-source ~/.zshrc
+echo -e "emacs(){\nif [ -n \"\$1\" ]; then\n  nohup emacsclient \"\$1\" >/dev/null 2>&1 &\nelse\n  nohup emacsclient >/dev/null 2>&1 &\nfi" >> $ZDOTDIR/.zshrc
+source $ZDOTDIR/.zshrc

@@ -27,9 +27,9 @@ alias ll='ls -axlt'
 
 emacs(){
   if [ -n "$1" ]; then
-    nohup emacsclient "$1" >/dev/null 2>&1 &
+    nohup emacsclient --alternate-editor=emacsserver "$1" >/dev/null 2>&1 &
   else
-    nohup emacsclient >/dev/null 2>&1 &
+    nohup emacsclient --alternate-editor=emacsserver >/dev/null 2>&1 &
   fi
 }
 

@@ -19,3 +19,5 @@ py38-pip
 py38-virtualenv
 jq
 tmux
+imagemagick
+dvipng

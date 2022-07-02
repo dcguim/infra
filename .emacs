@@ -10,9 +10,30 @@
 ;;   (add-to-list 'load-path "~/.emacs.d/elpa/use-package-20200629.1856")
 ;;   (require 'use-package))
 
+;; Adding package archive sources
+(require 'package)
+;;  elpa
+(add-to-list 'package-archives
+             '("elpa" . "http://tromey.com/elpa/"))
+;; melpa
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
+;;  marmalade
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+
+;; setting use-package
+(condition-case nil
+    (require 'use-package)
+  (file-error
+   (package-refresh-contents)
+   (package-install 'use-package)
+   (setq use-package-always-ensure t)
+   (require 'use-package)))
+
+
 ;; vertical line
-(add-to-list 'load-path "~/.emacs.d/els/fill-column-indicator/")
-(require 'fill-column-indicator)
+(use-package fill-column-indicator
+	     :ensure t)
 (setq fci-rule-column 80)
 (setq fci-rule-color "violet")
 
@@ -20,9 +41,6 @@
 (setq column-number-mode t)
 (setq line-number-mode t)
 (setq indent-tabs-mode nil)
-(setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-(ido-mode 1)
 
 ;; Make org-mode work with files ending in .org
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
@@ -118,81 +136,57 @@
 (setq org-latex-create-formula-image-program 'imagemagick)
 (setq org-preview-latex-default-process 'imagemagick)
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
-;; setup load-path and autoloads
-;; (add-to-list 'load-path "/Applications/slime")
-;; (require 'slime-autoloads)
 
 ;; Set your lisp system and, optionally, some contribs
 (setq inferior-lisp-program "/usr/local/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 
-;; Adding package archive sources
-(require 'package)
-;;  elpa
-(add-to-list 'package-archives
-             '("elpa" . "http://tromey.com/elpa/"))
-;; melpa
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
-;;  marmalade
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-
-;; setting use-package
-(condition-case nil
-    (require 'use-package)
-  (file-error
-   (package-refresh-contents)
-   (package-install 'use-package)
-   (setq use-package-always-ensure t)
-   (require 'use-package)))
-
-;; emacs speaks statistics
-(add-to-list 'load-path "~/.emacs.d/elpa/ess-17.11.999/")
-(add-to-list 'auto-mode-alist '("\\.r\\'" . r-mode))
-
-;; clojure mode
-(add-to-list 'load-path "~/.emacs.d/elpa/clojure-mode-5.10.0/")
-
-;; Load python mode
-(load-library "python")
-(autoload 'python-mode "python-mode" "Python Mode." t)
-(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-(add-to-list 'interpreter-mode-alist '("python" . python-mode))
-
-;; python ident by spaces rather than TAB
-(setq interpreter-mode-alist
-      (cons '("python" . python-mode)
-            interpreter-mode-alist)
-      python-mode-hook
-      '(lambda () (progn
-		    (set-variable 'indent-tabs-mode nil)
-                    (set-variable 'py-indent-offset 4))))
-
+;; (load-library "python")
+;; (autoload 'python-mode "python-mode" "Python Mode." t)
+;; (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+;; (add-to-list 'interpreter-mode-alist '("python" . python-mode))
+;; 
+;; ;; python ident by spaces rather than TAB
+;; (setq interpreter-mode-alist
+;;       (cons '("python" . python-mode)
+;;             interpreter-mode-alist)
+;;       python-mode-hook
+;;       '(lambda () (progn
+;; 		    (set-variable 'indent-tabs-mode nil)
+;;                     (set-variable 'py-indent-offset 4))))
+;; 
 ;; Hook for C programming identation
 (add-hook 'c-mode-common-hook '(lambda ()
                                  (local-set-key (kbd "RET") 'newline-and-indent)))
+;; load rustic for better rust mode and better integration with cargo
+;; lsp-mode for rust-analyzer integration
+(use-package lsp-mode
+  :ensure t
+  :commands lsp)
+
+(use-package rustic
+  :ensure t)
 
 ;; Load lsp-java
-(require 'lsp-java)
+(use-package lsp-java
+             :ensure)
 (add-hook 'java-mode-hook #'lsp)
 
-(use-package projectile)
-(use-package flycheck)
-(use-package yasnippet :config (yas-global-mode))
-(use-package lsp-mode :hook ((lsp-mode . lsp-enable-which-key-integration))
-  :config (setq lsp-completion-enable-additional-text-edit nil))
-(use-package hydra)
-(use-package company)
-(use-package lsp-ui)
-(use-package which-key :config (which-key-mode))
-(use-package lsp-java :config (add-hook 'java-mode-hook 'lsp))
-(use-package dap-mode :after lsp-mode :config (dap-auto-configure-mode))
-(use-package dap-java :ensure nil)
-(use-package helm-lsp)
-(use-package helm
-  :config (helm-mode))
-(use-package lsp-treemacs)
-
+;; (use-package projectile)
+;; (use-package flycheck)
+;; (use-package yasnippet :config (yas-global-mode))
+;; (use-package lsp-mode :hook ((lsp-mode . lsp-enable-which-key-integration))
+;;   :config (setq lsp-completion-enable-additional-text-edit nil))
+;; (use-package lsp-ui)
+;; (use-package lsp-java :config (add-hook 'java-mode-hook 'lsp))
+;; (use-package dap-mode :after lsp-mode :config (dap-auto-configure-mode))
+;; (use-package dap-java :ensure nil)
+;; (use-package lsp-treemacs)
+;; (use-package helm-core)
+;; (use-package helm-lsp :after helm-core)
+;; (use-package helm
+;;   :config (helm-mode))
+;; (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
 
 
 ;; Set org todo tags
@@ -220,7 +214,7 @@
 (global-set-key (kbd "C-.") 'next-line)
 (eval-after-load "dired"
   '(progn(define-key dired-mode-map (kbd "C-.") 'next-line)
-                 (define-key dired-mode-map (kbd "C-l") 'previous-line)))
+         (define-key dired-mode-map (kbd "C-l") 'previous-line)))
 
 ;; iy note ';' go to next char and ',' go to previous
 (global-set-key (kbd "C-c f") 'iy-go-to-char)
@@ -248,14 +242,15 @@
 
 
 
-(require 'ob-shell)
-(org-babel-do-load-languages
- 'org-babel-load-languages '((shell . t)
-                             (C . t)
-                             (lisp . t)
-                             (latex . t)
-			     (java . t)))
-
+;; (use-package ob-shell
+;;   :ensure t)
+;; (org-babel-do-load-languages
+;;  'org-babel-load-languages '((shell . t)
+;;                              (C . t)
+;;                              (lisp . t)
+;;                              (latex . t)
+;; 			     (java . t)))
+;; 
 
 (package-initialize)
 (when (not package-archive-contents)
@@ -268,7 +263,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(helm-lsp which-key yasnippet flycheck projectile use-package company lsp-ui lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider)))
+   '(lsp-mode rustic rust-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-ui lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
+ '(warning-suppress-types
+   '(((package reinitialization))
+     ((package reinitialization)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -6,10 +6,6 @@
 ;; Uncomment to debug .emacs
 (setq debug-on-error t)
 
-;; (eval-when-compile
-;;   (add-to-list 'load-path "~/.emacs.d/elpa/use-package-20200629.1856")
-;;   (require 'use-package))
-
 ;; Adding package archive sources
 (require 'package)
 ;;  elpa
@@ -30,25 +26,32 @@
    (setq use-package-always-ensure t)
    (require 'use-package)))
 
-
-;; vertical line
-(use-package fill-column-indicator
-	     :ensure t)
-(setq fci-rule-column 80)
-(setq fci-rule-color "violet")
-
-;; enable some modes
+;; enable some native modes (simple.el) for cursor management and indentation
 (setq column-number-mode t)
 (setq line-number-mode t)
 (setq indent-tabs-mode nil)
 
-;; Make org-mode work with files ending in .org
+;; Makes the cursor red
+(add-to-list 'default-frame-alist '(cursor-color . "red"))
+(set-face-attribute 'region nil :background "#ead9ff")
+
+;; vertical line
+(use-package fill-column-indicator
+	     :ensure t
+	     :config
+	     (setq fci-rule-column 80))
+
+;; Enable org-mode on files ending with *.org
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+;; Enable python-mode on files ending with *.py
 (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
 
 ;; color theme
-(add-to-list 'load-path "~/.emacs.d/elpa/color-theme-sanityinc-tomorrow-1.17/")
-(setq color-theme-sanityinc-tomorrow-eighties t)
+(use-package color-theme-sanityinc-tomorrow
+  :ensure
+  :config (load-theme 'sanityinc-tomorrow-eighties t))
+
+
 
 ;; yaml mode
 ;;(require 'yaml-mode)
@@ -57,10 +60,6 @@
 ;;             (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 ;; (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
-
-;; Makes the cursor red
-(add-to-list 'default-frame-alist '(cursor-color . "red"))
-(set-face-attribute 'region nil :background "#ead9ff")
 
 ;; text marking
 (global-set-key (kbd "C-c m") 'er/expand-region)
@@ -165,8 +164,16 @@
   :commands lsp)
 
 (use-package rustic
-  :ensure t)
-
+  :ensure
+  :bind (:map rustic-mode-map
+	      ("M-?" . lsp-find-references)
+	      ("C-c C-c C-r" . rustic-cargo-comint-run)
+	      ("C-c C-c l" . flycheck-list-errors)
+	      ("C-c C-c a" . lsp-execute-code-action)
+	      ("C-c C-c r" . lsp-rename)
+	      ("C-c C-c q" . lsp-workspace-restart)
+	      ("C-c C-c Q" . lsp-workspace-shutdown)
+	      ("C-c C-c s" . lsp-rust-analyzer-status)))
 ;; Load lsp-java
 (use-package lsp-java
              :ensure)
@@ -227,6 +234,8 @@
 (global-set-key (kbd "C-c s") 'other-frame)
 (global-set-key (kbd "C-c r") 'revert-buffer)
 (global-set-key (kbd "C-c C-f") 'load-file)
+(global-set-key (kbd "C-c e") 'eval-expression)
+(global-set-key (kbd "C-c r") 'eval-region)
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
@@ -262,8 +271,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(sanityinc-tomorrow-eighties))
+ '(custom-safe-themes
+   '("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(package-selected-packages
-   '(lsp-mode rustic rust-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-ui lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
+   '(rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode rustic rust-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-ui lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
  '(warning-suppress-types
    '(((package reinitialization))
      ((package reinitialization)))))
@@ -273,3 +285,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+
+

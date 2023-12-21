@@ -1,0 +1,10 @@
+autoconf
+automake
+openssl
+pkgconfig
+gnutls
+texinfo
+texlive
+jq
+tmux
+imagemagick

@@ -21,16 +21,16 @@ function chpwd {
 }
 ## aliases
 alias ll='ls -axlt'
-
 # The following third party configurations should be configured by the
 # application itself.
 emacs(){
-  if [ -n "$1" ]; then
-    nohup emacsclient --alternate-editor=emacsserver "$1" >/dev/null 2>&1 &
-  else
-    nohup emacsclient --alternate-editor=emacsserver >/dev/null 2>&1 &
-  fi
+  nohup emacs "$@" &
 }
+#  if [ -n "$1" ]; then
+#    nohup emacs "$1" &
+#  else
+#    nohup emacs &
+#  fi
 
 ## GCP util
 # The next line updates PATH for the Google Cloud SDK.

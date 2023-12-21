@@ -1,12 +1,15 @@
 ###############################
 #         PATH config         #
 ###############################
-# add path for macports binaries
-export PATH="/opt/local/bin/:$PATH"
+# add path for brew binaries
+export PATH="/opt/homebrew/bin"
 # add path for maven
 export PATH="/usr/local/apache-maven-3.8.1/bin/:$PATH"
 # set java home directory
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home"
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_331.jdk/Contents/Home"
+# add path for rust binaries and the rust toolchain installer
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.rustup/:$PATH"
 # add path for flutter
 export PATH="$HOME/Library/flutter/bin:$PATH"
 # add path for android SDK

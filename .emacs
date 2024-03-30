@@ -1,4 +1,7 @@
-(server-start)
+(require 'server)
+(or (server-running-p)
+    (server-start))
+
 (setq inhibit-startup-message t)
 (setq ns-pop-up-frames t)
 (if window-system
@@ -71,6 +74,9 @@
                                 :image-input-type "pdf"
                                 :image-output-type ...))
 
+;; handy commands for org-mode
+(global-set-key (kbd "C-c C-,") 'org-insert-structure-template)
+
 ;; configs for publishing HTML
 (global-set-key (kbd "C-M-f") 'org-publish-current-file)
 (global-set-key (kbd "C-M-a") 'org-publish-project)
@@ -93,7 +99,8 @@
                   "\\documentclass[a4paper,12pt]{article}
                   \\usepackage{tikz}
                   \\usepackage{pgfplots}
-                  \\usetikzlibrary{arrows}"
+                  \\usetikzlibrary{arrows}
+                  \\pgfplotsset{compat=1.11}"
                   ("\\section{%s}" . "\\section{%s}")
                   ("\\subsection{%s}" . "\\subsection{%s}")
                   ("\\subsubsection{%s}" . "\\subsubsection{%s}")
@@ -154,9 +161,7 @@
 ;; 		    (set-variable 'indent-tabs-mode nil)
 ;;                     (set-variable 'py-indent-offset 4))))
 ;; 
-;; Hook for C programming identation
-(add-hook 'c-mode-common-hook '(lambda ()
-                                 (local-set-key (kbd "RET") 'newline-and-indent)))
+
 ;; load rustic for better rust mode and better integration with cargo
 ;; lsp-mode for rust-analyzer integration
 (use-package lsp-mode
@@ -253,12 +258,12 @@
 
 ;; (use-package ob-shell
 ;;   :ensure t)
-;; (org-babel-do-load-languages
-;;  'org-babel-load-languages '((shell . t)
-;;                              (C . t)
-;;                              (lisp . t)
-;;                              (latex . t)
-;; 			     (java . t)))
+(org-babel-do-load-languages
+ 'org-babel-load-languages '((shell . t)
+                             (C . t)
+                             (lisp . t)
+                             (latex . t)
+ 			     (java . t)))
 ;; 
 
 (package-initialize)
@@ -288,3 +293,4 @@
 
 
 
+(put 'downcase-region 'disabled nil)

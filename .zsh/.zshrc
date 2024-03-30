@@ -8,9 +8,10 @@ setopt prompt_subst
 zstyle ':vcs_info:git:*' formats '%b'
 NEWLINE=$'\n'
 PROMPT='%F{62} ('\${vcs_info_msg_0_}')'$NEWLINE"%f%F{239} %n@%f %F{92}%~%f %F{62}>%f "
-# The following lines were added by compinstall
-zstyle ':completion:*' completer _complete _ignored _approximate
+# The following lines were added by compinstall, make sure zsh is less "smart"!
+zstyle ':completion:*' completer _complete 
 zstyle :compinstall filename '/Users/dguim/work/infra/.zsh/.zshrc'
+setopt noautomenu
 
 # making my life easier
 ## hooks
@@ -26,11 +27,9 @@ alias ll='ls -axlt'
 emacs(){
   nohup emacs "$@" &
 }
-#  if [ -n "$1" ]; then
-#    nohup emacs "$1" &
-#  else
-#    nohup emacs &
-#  fi
+
+## setting pyenv path
+eval "$(pyenv init --path)"
 
 ## GCP util
 # The next line updates PATH for the Google Cloud SDK.

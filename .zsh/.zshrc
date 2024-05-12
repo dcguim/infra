@@ -28,8 +28,8 @@ emacs(){
   nohup emacs "$@" &
 }
 
-## setting pyenv path
-eval "$(pyenv init --path)"
+## hook direnv into the shell
+eval "$(direnv hook zsh)"
 
 ## GCP util
 # The next line updates PATH for the Google Cloud SDK.

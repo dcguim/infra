@@ -44,10 +44,102 @@
 	     :config
 	     (setq fci-rule-column 80))
 
+
 ;; Enable org-mode on files ending with *.org
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 ;; Enable python-mode on files ending with *.py
-(add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
+;;(add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
+;;(use-package jedi
+;;  :ensure t
+;;  :config
+;;  (add-hook 'python-mode-hook 'jedi:setup)
+;;  (setq jedi:complete-on-dot t))
+;;(elpy-enable)
+;;(setq elpy-rpc-backend "jedi")
+;;(use-package elpy
+;;  :ensure t
+;;  :init
+;;  (elpy-enable))
+
+
+;; attempt to use lsp-mode instead of elpy
+;; install python's python-language-server 
+;; for additional support: pyls-black pyls-mypy pyls-isort future
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode))
+
+(use-package direnv
+  :ensure t
+  :config
+  (direnv-mode))
+
+; setup Emacs path from our ~/.zshenv
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+(use-package flycheck
+  :ensure t)
+
+; Let's set up company! perhaps not necessary but this is what i like to use
+(use-package company
+  :ensure t
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 1))
+
+(use-package lsp-mode
+  :ensure t
+  :config
+  (lsp-register-custom-settings
+   '(
+;     ("pyls.plugins.pyls_mypy.enabled" t t)
+;     ("pyls.plugins.pyls_mypy.live_mode" nil t)
+     ("pyls.plugins.pyls_black.enabled" t t)
+     ("pyls.plugins.pyls_isort.enabled" t t)))
+  :hook
+  ((python-mode . lsp)
+   (lsp-mode . lsp-enable-which-key-integration)))
+
+
+; Let's set up company! perhaps not necessary but this is what i like to use
+(use-package company
+  :ensure t
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 1))
+
+; let's add the lsp company backend
+(use-package company-lsp
+  :ensure t
+  :config
+  (push 'company-lsp company-backends))
+
+(use-package lsp-ui
+  :ensure t
+  :hook (lsp-mode . lsp-ui-mode))
+
+;;(use-package lsp-ui
+;;  :config (setq lsp-ui-sideline-show-hover t
+;;                lsp-ui-sideline-delay 0.5
+;;                lsp-ui-doc-delay 5
+;;                lsp-ui-sideline-ignore-duplicates t
+;;                lsp-ui-doc-position 'bottom
+;;                lsp-ui-doc-alignment 'frame
+;;                lsp-ui-doc-header nil
+;;                lsp-ui-doc-include-signature t
+;;                lsp-ui-doc-use-childframe t)
+;;  :commands lsp-ui-mode)
+
+;;(use-package pyvenv
+;;  :demand t
+;;  :config
+;;  (setq pyvenv-workon "emacs")  ; Default venv
+;;  (pyvenv-tracking-mode 1))  ; Automatically use pyvenv-workon via dir-locals
 
 ;; color theme
 (use-package color-theme-sanityinc-tomorrow
@@ -164,16 +256,11 @@
 
 ;; load rustic for better rust mode and better integration with cargo
 ;; lsp-mode for rust-analyzer integration
-(use-package lsp-mode
-  :ensure t
-  :commands lsp)
-
 (use-package rustic
   :ensure
   :bind (:map rustic-mode-map
 	      ("M-?" . lsp-find-references)
 	      ("C-c C-c C-r" . rustic-cargo-comint-run)
-	      ("C-c C-c l" . flycheck-list-errors)
 	      ("C-c C-c a" . lsp-execute-code-action)
 	      ("C-c C-c r" . lsp-rename)
 	      ("C-c C-c q" . lsp-workspace-restart)
@@ -228,12 +315,10 @@
   '(progn(define-key dired-mode-map (kbd "C-.") 'next-line)
          (define-key dired-mode-map (kbd "C-l") 'previous-line)))
 
+
 ;; iy note ';' go to next char and ',' go to previous
-(global-set-key (kbd "C-c f") 'iy-go-to-char)
-(global-set-key (kbd "C-c b") 'iy-go-to-char-backward)
-(global-set-key (kbd "C-c n") 'iy-go-to-or-up-to-continue)
-(global-set-key (kbd "C-c p") 'iy-go-to-or-up-to-continue-backward)
-(global-set-key (kbd "C-c C-g") 'iy-go-to-char-done)
+(global-set-key (kbd "C-c f") 'jump-char-forward)
+(global-set-key (kbd "C-c b") 'jump-char-backward)
 
 ;; additional rebindings
 (global-set-key (kbd "C-c s") 'other-frame)
@@ -279,8 +364,9 @@
  '(custom-enabled-themes '(sanityinc-tomorrow-eighties))
  '(custom-safe-themes
    '("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
+ '(elpy-rpc-python-command "python3")
  '(package-selected-packages
-   '(rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode rustic rust-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-ui lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
+   '(jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode rustic rust-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-ui lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
  '(warning-suppress-types
    '(((package reinitialization))
      ((package reinitialization)))))

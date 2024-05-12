@@ -65,6 +65,7 @@
 ;; attempt to use lsp-mode instead of elpy
 ;; install python's python-language-server 
 ;; for additional support: pyls-black pyls-mypy pyls-isort future
+;; https://www.kotaweaver.com/blog/emacs-python-lsp/
 (use-package which-key
   :ensure t
   :config
@@ -85,13 +86,6 @@
 (use-package flycheck
   :ensure t)
 
-; Let's set up company! perhaps not necessary but this is what i like to use
-(use-package company
-  :ensure t
-  :config
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 1))
-
 (use-package lsp-mode
   :ensure t
   :config
@@ -106,40 +100,9 @@
    (lsp-mode . lsp-enable-which-key-integration)))
 
 
-; Let's set up company! perhaps not necessary but this is what i like to use
-(use-package company
-  :ensure t
-  :config
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 1))
-
-; let's add the lsp company backend
-(use-package company-lsp
-  :ensure t
-  :config
-  (push 'company-lsp company-backends))
-
 (use-package lsp-ui
   :ensure t
   :hook (lsp-mode . lsp-ui-mode))
-
-;;(use-package lsp-ui
-;;  :config (setq lsp-ui-sideline-show-hover t
-;;                lsp-ui-sideline-delay 0.5
-;;                lsp-ui-doc-delay 5
-;;                lsp-ui-sideline-ignore-duplicates t
-;;                lsp-ui-doc-position 'bottom
-;;                lsp-ui-doc-alignment 'frame
-;;                lsp-ui-doc-header nil
-;;                lsp-ui-doc-include-signature t
-;;                lsp-ui-doc-use-childframe t)
-;;  :commands lsp-ui-mode)
-
-;;(use-package pyvenv
-;;  :demand t
-;;  :config
-;;  (setq pyvenv-workon "emacs")  ; Default venv
-;;  (pyvenv-tracking-mode 1))  ; Automatically use pyvenv-workon via dir-locals
 
 ;; color theme
 (use-package color-theme-sanityinc-tomorrow
@@ -270,23 +233,6 @@
 (use-package lsp-java
              :ensure)
 (add-hook 'java-mode-hook #'lsp)
-
-;; (use-package projectile)
-;; (use-package flycheck)
-;; (use-package yasnippet :config (yas-global-mode))
-;; (use-package lsp-mode :hook ((lsp-mode . lsp-enable-which-key-integration))
-;;   :config (setq lsp-completion-enable-additional-text-edit nil))
-;; (use-package lsp-ui)
-;; (use-package lsp-java :config (add-hook 'java-mode-hook 'lsp))
-;; (use-package dap-mode :after lsp-mode :config (dap-auto-configure-mode))
-;; (use-package dap-java :ensure nil)
-;; (use-package lsp-treemacs)
-;; (use-package helm-core)
-;; (use-package helm-lsp :after helm-core)
-;; (use-package helm
-;;   :config (helm-mode))
-;; (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
-
 
 ;; Set org todo tags
 (setq org-todo-keywords

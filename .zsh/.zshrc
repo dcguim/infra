@@ -22,6 +22,7 @@ function chpwd {
 }
 ## aliases
 alias ll='ls -axlt'
+alias poetryenv='poetry env info --path'
 # The following third party configurations should be configured by the
 # application itself.
 emacs(){

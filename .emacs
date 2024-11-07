@@ -47,22 +47,8 @@
 
 ;; Enable org-mode on files ending with *.org
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-;; Enable python-mode on files ending with *.py
-;;(add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
-;;(use-package jedi
-;;  :ensure t
-;;  :config
-;;  (add-hook 'python-mode-hook 'jedi:setup)
-;;  (setq jedi:complete-on-dot t))
-;;(elpy-enable)
-;;(setq elpy-rpc-backend "jedi")
-;;(use-package elpy
-;;  :ensure t
-;;  :init
-;;  (elpy-enable))
 
 
-;; attempt to use lsp-mode instead of elpy
 ;; install python's python-language-server 
 ;; for additional support: pyls-black pyls-mypy pyls-isort future
 ;; https://www.kotaweaver.com/blog/emacs-python-lsp/
@@ -86,23 +72,55 @@
 (use-package flycheck
   :ensure t)
 
+(use-package company
+  :ensure t
+  :hook (python-mode . company-mode)
+  :config
+  (setq company-idle-delay 0.1
+        company-minimum-prefix-length 1))
+
 (use-package lsp-mode
   :ensure t
+  :init
+  (setq lsp-completion-provider :capf) ;; Use lsp-mode's built-in completion-at-point function
   :config
+  ;; Register custom settings for pylsp
   (lsp-register-custom-settings
-   '(
-;     ("pyls.plugins.pyls_mypy.enabled" t t)
-;     ("pyls.plugins.pyls_mypy.live_mode" nil t)
-     ("pyls.plugins.pyls_black.enabled" t t)
-     ("pyls.plugins.pyls_isort.enabled" t t)))
+   '(("pyls.plugins.pyls_black.enabled" t t)
+     ("pyls.plugins.pyls_isort.enabled" t t)
+     ("pyls.plugins.pyls_mypy.enabled" t t)
+     ("pyls.plugins.pyls_mypy.live_mode" nil t)
+     ("pyls.plugins.pyls_autopep8.enabled" nil t))) ;; Disable autopep8 if black is enabled
   :hook
   ((python-mode . lsp)
-   (lsp-mode . lsp-enable-which-key-integration)))
+   (lsp-mode . lsp-enable-which-key-integration))
+  :bind (:map lsp-mode-map
+              ("C-<tab>" . completion-at-point)
+              ("C-d p" . lsp-describe-thing-at-point)))
 
-
-(use-package lsp-ui
-  :ensure t
-  :hook (lsp-mode . lsp-ui-mode))
+;;(use-package company
+;;  :ensure t
+;;  :hook (python-mode . company-mode)
+;;  :config
+;;  (setq company-idle-delay 0.1
+;;        company-minimum-prefix-length 1))
+;;
+;;(use-package lsp-mode
+;;  :ensure t
+;;  :config
+;;  (setq lsp-completion-provider :capf) 
+;;  (lsp-register-custom-settings
+;;   '(
+;;;     ("pyls.plugins.pyls_mypy.enabled" t t)
+;;;     ("pyls.plugins.pyls_mypy.live_mode" nil t)
+;;     ("pyls.plugins.pyls_black.enabled" t t)
+;;     ("pyls.plugins.pyls_isort.enabled" t t)))
+;;  :hook
+;;  ((python-mode . lsp)
+;;   (lsp-mode . lsp-enable-which-key-integration))
+;;  :bind (:map lsp-mode-map
+;;	      ("C-<tab>" . completion-at-point)
+;;	      ("C-d p" . lsp-describe-thing-at-point)))
 
 ;; color theme
 (use-package color-theme-sanityinc-tomorrow
@@ -219,20 +237,16 @@
 
 ;; load rustic for better rust mode and better integration with cargo
 ;; lsp-mode for rust-analyzer integration
-(use-package rustic
-  :ensure
-  :bind (:map rustic-mode-map
-	      ("M-?" . lsp-find-references)
-	      ("C-c C-c C-r" . rustic-cargo-comint-run)
-	      ("C-c C-c a" . lsp-execute-code-action)
-	      ("C-c C-c r" . lsp-rename)
-	      ("C-c C-c q" . lsp-workspace-restart)
-	      ("C-c C-c Q" . lsp-workspace-shutdown)
-	      ("C-c C-c s" . lsp-rust-analyzer-status)))
-;; Load lsp-java
-(use-package lsp-java
-             :ensure)
-(add-hook 'java-mode-hook #'lsp)
+;;(use-package rustic
+;;  :ensure
+;;  :bind (:map rustic-mode-map
+;;	      ("M-?" . lsp-find-references)
+;;	      ("C-c C-c C-r" . rustic-cargo-comint-run)
+;;	      ("C-c C-c a" . lsp-execute-code-action)
+;;	      ("C-c C-c r" . lsp-rename)
+;;	      ("C-c C-c q" . lsp-workspace-restart)
+;;	      ("C-c C-c Q" . lsp-workspace-shutdown)
+;;	      ("C-c C-c s" . lsp-rust-analyzer-status)))
 
 ;; Set org todo tags
 (setq org-todo-keywords
@@ -289,13 +303,13 @@
 
 ;; (use-package ob-shell
 ;;   :ensure t)
-(org-babel-do-load-languages
- 'org-babel-load-languages '((shell . t)
-                             (C . t)
-                             (lisp . t)
-                             (latex . t)
- 			     (java . t)))
-;; 
+;;(org-babel-do-load-languages
+;; 'org-babel-load-languages '((shell . t)
+;;                             (C . t)
+;;                             (lisp . t)
+;;                             (latex . t)
+;; 			     (java . t)))
+;;;; 
 
 (package-initialize)
 (when (not package-archive-contents)
@@ -312,7 +326,7 @@
    '("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(elpy-rpc-python-command "python3")
  '(package-selected-packages
-   '(jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode rustic rust-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-ui lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
+   '(company-lsp pyvenv js2-mode jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
  '(warning-suppress-types
    '(((package reinitialization))
      ((package reinitialization)))))

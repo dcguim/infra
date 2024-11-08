@@ -49,6 +49,11 @@
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
 
+(use-package gptel
+  :ensure t
+  :config
+  (setq gptel-model "gpt-4"))
+
 ;; install python's python-language-server 
 ;; for additional support: pyls-black pyls-mypy pyls-isort future
 ;; https://www.kotaweaver.com/blog/emacs-python-lsp/
@@ -326,7 +331,7 @@
    '("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(elpy-rpc-python-command "python3")
  '(package-selected-packages
-   '(company-lsp pyvenv js2-mode jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
+   '(gptel company-lsp pyvenv js2-mode jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
  '(warning-suppress-types
    '(((package reinitialization))
      ((package reinitialization)))))

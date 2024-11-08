@@ -15,6 +15,9 @@ setopt noautomenu
 
 # making my life easier
 ## hooks
+function poetryenv {
+    echo $(poetry env info --path)
+    }
 function chpwd {
   if ! [ -z $(git rev-parse --git-dir 2>/dev/null) ];
   then export BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -22,7 +25,6 @@ function chpwd {
 }
 ## aliases
 alias ll='ls -axlt'
-alias poetryenv='poetry env info --path'
 # The following third party configurations should be configured by the
 # application itself.
 emacs(){

@@ -52,7 +52,7 @@
 (use-package gptel
   :ensure t
   :config
-  (setq gptel-model "gpt-4"))
+  (setq gptel-model "gpt-3.5-turbo"))
 
 ;; install python's python-language-server 
 ;; for additional support: pyls-black pyls-mypy pyls-isort future
@@ -84,6 +84,25 @@
   (setq company-idle-delay 0.1
         company-minimum-prefix-length 1))
 
+;; Use EIN for Jupyter notebook integration
+(use-package ein
+  :ensure t
+  :init
+  ;; Set default notebook directory to current directory
+  (setq ein:jupyter-default-server-command "/Users/dguim/Library/Python/3.9/bin/jupyter")
+  (setq ein:jupyter-server-use-containers nil)
+  (setq ein:jupyter-default-notebook-directory default-directory)
+  :config
+  ;; Enable auto-completion and undo in notebooks
+  (setq ein:use-auto-complete t)
+  (setq ein:worksheet-enable-undo t)
+  
+  ;; Keybindings for opening notebooks and connecting to a running Jupyter server
+  :bind (("C-c C-j l" . ein:notebooklist-login)))
+;;  (setq ein:jupyter-server-command "jupyter")
+
+
+
 (use-package lsp-mode
   :ensure t
   :init
@@ -103,29 +122,6 @@
               ("C-<tab>" . completion-at-point)
               ("C-d p" . lsp-describe-thing-at-point)))
 
-;;(use-package company
-;;  :ensure t
-;;  :hook (python-mode . company-mode)
-;;  :config
-;;  (setq company-idle-delay 0.1
-;;        company-minimum-prefix-length 1))
-;;
-;;(use-package lsp-mode
-;;  :ensure t
-;;  :config
-;;  (setq lsp-completion-provider :capf) 
-;;  (lsp-register-custom-settings
-;;   '(
-;;;     ("pyls.plugins.pyls_mypy.enabled" t t)
-;;;     ("pyls.plugins.pyls_mypy.live_mode" nil t)
-;;     ("pyls.plugins.pyls_black.enabled" t t)
-;;     ("pyls.plugins.pyls_isort.enabled" t t)))
-;;  :hook
-;;  ((python-mode . lsp)
-;;   (lsp-mode . lsp-enable-which-key-integration))
-;;  :bind (:map lsp-mode-map
-;;	      ("C-<tab>" . completion-at-point)
-;;	      ("C-d p" . lsp-describe-thing-at-point)))
 
 ;; color theme
 (use-package color-theme-sanityinc-tomorrow

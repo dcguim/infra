@@ -84,23 +84,40 @@
   (setq company-idle-delay 0.1
         company-minimum-prefix-length 1))
 
+(use-package poetry
+ :ensure t)
+
 ;; Use EIN for Jupyter notebook integration
 (use-package ein
   :ensure t
   :init
   ;; Set default notebook directory to current directory
-  (setq ein:jupyter-default-server-command "/Users/dguim/Library/Python/3.9/bin/jupyter")
+  (setq ein:jupyter-server-use-command "jupyter")
+;;  (custom-set-variables '(ein:jupyter-server-use-subcommand "run jupyter notebook"))
   (setq ein:jupyter-server-use-containers nil)
   (setq ein:jupyter-default-notebook-directory default-directory)
   :config
+  ;; Automatically activate the Poetry virtual environment when starting ein:run
+  (defun ein-activate-poetry-venv ()
+    "Activate the Poetry virtual environment before running ein:run."
+    (let ((venv-path (string-trim (shell-command-to-string "poetryenv"))))
+      (when (and venv-path (file-exists-p (concat venv-path "/bin/activate")))
+        (pyvenv-activate (concat venv-path "/bin/activate")))))
+
+  ;; Hook to activate the Poetry environment before running ein
+  (add-hook 'ein:notebooklist-login-hook 'ein-activate-poetry-venv)
   ;; Enable auto-completion and undo in notebooks
   (setq ein:use-auto-complete t)
   (setq ein:worksheet-enable-undo t)
-  
   ;; Keybindings for opening notebooks and connecting to a running Jupyter server
   :bind (("C-c C-j l" . ein:notebooklist-login)))
 ;;  (setq ein:jupyter-server-command "jupyter")
 
+(defun ein:run-poetry ()
+  "Run Jupyter notebook server with Poetry."
+  (interactive)
+  (let ((ein:jupyter-server-command "poetry"))
+    (ein:run "run jupyter notebook" default-directory)))
 
 
 (use-package lsp-mode
@@ -127,16 +144,6 @@
 (use-package color-theme-sanityinc-tomorrow
   :ensure
   :config (load-theme 'sanityinc-tomorrow-eighties t))
-
-
-
-;; yaml mode
-;;(require 'yaml-mode)
-;; (add-hook 'yaml-mode-hook
-;;           (lambda ()
-;;             (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
-;; (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-;; (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
 
 ;; text marking
 (global-set-key (kbd "C-c m") 'er/expand-region)
@@ -221,33 +228,6 @@
 (setq inferior-lisp-program "/usr/local/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 
-;; (load-library "python")
-;; (autoload 'python-mode "python-mode" "Python Mode." t)
-;; (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-;; (add-to-list 'interpreter-mode-alist '("python" . python-mode))
-;; 
-;; ;; python ident by spaces rather than TAB
-;; (setq interpreter-mode-alist
-;;       (cons '("python" . python-mode)
-;;             interpreter-mode-alist)
-;;       python-mode-hook
-;;       '(lambda () (progn
-;; 		    (set-variable 'indent-tabs-mode nil)
-;;                     (set-variable 'py-indent-offset 4))))
-;; 
-
-;; load rustic for better rust mode and better integration with cargo
-;; lsp-mode for rust-analyzer integration
-;;(use-package rustic
-;;  :ensure
-;;  :bind (:map rustic-mode-map
-;;	      ("M-?" . lsp-find-references)
-;;	      ("C-c C-c C-r" . rustic-cargo-comint-run)
-;;	      ("C-c C-c a" . lsp-execute-code-action)
-;;	      ("C-c C-c r" . lsp-rename)
-;;	      ("C-c C-c q" . lsp-workspace-restart)
-;;	      ("C-c C-c Q" . lsp-workspace-shutdown)
-;;	      ("C-c C-c s" . lsp-rust-analyzer-status)))
 
 ;; Set org todo tags
 (setq org-todo-keywords
@@ -301,17 +281,6 @@
 
 
 
-
-;; (use-package ob-shell
-;;   :ensure t)
-;;(org-babel-do-load-languages
-;; 'org-babel-load-languages '((shell . t)
-;;                             (C . t)
-;;                             (lisp . t)
-;;                             (latex . t)
-;; 			     (java . t)))
-;;;; 
-
 (package-initialize)
 (when (not package-archive-contents)
   (package-refresh-contents))
@@ -327,7 +296,7 @@
    '("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(elpy-rpc-python-command "python3")
  '(package-selected-packages
-   '(gptel company-lsp pyvenv js2-mode jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
+   '(poetry gptel company-lsp pyvenv js2-mode jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
  '(warning-suppress-types
    '(((package reinitialization))
      ((package reinitialization)))))

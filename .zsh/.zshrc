@@ -15,9 +15,14 @@ setopt noautomenu
 
 # making my life easier
 ## hooks
-function poetryenv {
-    echo $(poetry env info --path)
-    }
+function poetryenv() {
+    if [[ -f "pyproject.toml" ]]; then
+        echo $(poetry env info --path)
+    else
+        echo "No pyproject.toml found in the current directory."
+        return 1
+    fi
+}
 function chpwd {
   if ! [ -z $(git rev-parse --git-dir 2>/dev/null) ];
   then export BRANCH=$(git rev-parse --abbrev-ref HEAD)

@@ -93,7 +93,6 @@
   :init
   ;; Set default notebook directory to current directory
   (setq ein:jupyter-server-use-command "jupyter")
-;;  (custom-set-variables '(ein:jupyter-server-use-subcommand "run jupyter notebook"))
   (setq ein:jupyter-server-use-containers nil)
   (setq ein:jupyter-default-notebook-directory default-directory)
   :config
@@ -103,22 +102,19 @@
     (let ((venv-path (string-trim (shell-command-to-string "poetryenv"))))
       (when (and venv-path (file-exists-p (concat venv-path "/bin/activate")))
         (pyvenv-activate (concat venv-path "/bin/activate")))))
-
-  ;; Hook to activate the Poetry environment before running ein
   (add-hook 'ein:notebooklist-login-hook 'ein-activate-poetry-venv)
+  ;; Automatically activate lsp environment when using python kernel
+  (defun my-ein-notebook-activate-lsp ()
+    "Activate LSP mode for Python files in EIN Jupyter notebooks."
+    (when (and (eq major-mode 'ein:notebook-multilang-mode)
+               (string= ein:notebook--kernel-name "python"))
+      (lsp)))
+  (add-hook 'ein:notebook-multilang-mode-hook 'my-ein-notebook-activate-lsp)
   ;; Enable auto-completion and undo in notebooks
   (setq ein:use-auto-complete t)
   (setq ein:worksheet-enable-undo t)
   ;; Keybindings for opening notebooks and connecting to a running Jupyter server
   :bind (("C-c C-j l" . ein:notebooklist-login)))
-;;  (setq ein:jupyter-server-command "jupyter")
-
-(defun ein:run-poetry ()
-  "Run Jupyter notebook server with Poetry."
-  (interactive)
-  (let ((ein:jupyter-server-command "poetry"))
-    (ein:run "run jupyter notebook" default-directory)))
-
 
 (use-package lsp-mode
   :ensure t

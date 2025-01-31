@@ -28,6 +28,35 @@ function chpwd {
   then export BRANCH=$(git rev-parse --abbrev-ref HEAD)
   fi
 }
+# smarter grep
+sgrep() {
+  # Default values
+  local ext=""
+  local pattern=""
+
+  # Parse command-line arguments using getopts
+  while getopts "e:p:" opt; do
+    case "$opt" in
+      e) ext="$OPTARG" ;;    # -e flag for file extension
+      p) pattern="$OPTARG" ;;  # -p flag for search pattern
+      *) echo "Usage: search_files -e <extension> -p <pattern>"; return 1 ;;
+    esac
+  done
+
+  # Ensure both extension and pattern are provided
+  if [ -z "$ext" ] || [ -z "$pattern" ]; then
+    echo "Usage: search_files -e <extension> -p <pattern>"
+    return 1
+  fi
+
+  # Perform the search
+  for file in $(find ./ -name "*.$ext"); do
+    if grep -q "$pattern" "$file"; then 
+      echo "==> $file"
+      grep "$pattern" "$file" 
+    fi
+  done
+}
 ## aliases
 alias ll='ls -axlt'
 # The following third party configurations should be configured by the

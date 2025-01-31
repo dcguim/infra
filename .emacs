@@ -77,17 +77,9 @@
 (use-package flycheck
   :ensure t)
 
-(use-package company
-  :ensure t
-  :hook (python-mode . company-mode)
-  :config
-  (setq company-idle-delay 0.1
-        company-minimum-prefix-length 1))
-
 (use-package poetry
  :ensure t)
 
-;; Use EIN for Jupyter notebook integration
 (use-package ein
   :ensure t
   :init
@@ -95,46 +87,53 @@
   (setq ein:jupyter-server-use-command "jupyter")
   (setq ein:jupyter-server-use-containers nil)
   (setq ein:jupyter-default-notebook-directory default-directory)
-  :config
-  ;; Automatically activate the Poetry virtual environment when starting ein:run
-  (defun ein-activate-poetry-venv ()
-    "Activate the Poetry virtual environment before running ein:run."
-    (let ((venv-path (string-trim (shell-command-to-string "poetryenv"))))
-      (when (and venv-path (file-exists-p (concat venv-path "/bin/activate")))
-        (pyvenv-activate (concat venv-path "/bin/activate")))))
-  (add-hook 'ein:notebooklist-login-hook 'ein-activate-poetry-venv)
+  (defun ein-activate-venv ()
+    "Activate the Poetry or virtual environment before running ein:run."
+    (let ((poetryenv-path (string-trim (shell-command-to-string "poetryenv")))
+          (virtualenv-path (getenv "VIRTUAL_ENV")))
+      (cond
+       ;; Activate Poetry environment if detected
+       ((and poetryenv-path (file-exists-p (concat poetryenv-path "/bin/activate")))
+	(pyvenv-activate poetryenv-path)
+	(message "Activated Poetry environment: %s" poetryenv-path))
+       ;; Activate virtual environment from VIRTUAL_ENV if set
+       ((and virtualenv-path (file-exists-p (concat virtualenv-path "/bin/activate")))
+	(pyvenv-activate virtualenv-path)
+	(message "Activated virtual environment: %s" virtualenv-path))
+       ;; No environment detected
+       (t (message "No virtual environment detected for EIN")))))
+  (add-hook 'ein:notebooklist-login-hook 'ein-activate-venv)
   ;; Automatically activate lsp environment when using python kernel
-  (defun my-ein-notebook-activate-lsp ()
+  (defun ein-notebook-activate-lsp ()
     "Activate LSP mode for Python files in EIN Jupyter notebooks."
-    (when (and (eq major-mode 'ein:notebook-multilang-mode)
-               (string= ein:notebook--kernel-name "python"))
-      (lsp)))
-  (add-hook 'ein:notebook-multilang-mode-hook 'my-ein-notebook-activate-lsp)
+    (when (or (derived-mode-p 'python-mode)
+              (derived-mode-p 'ein:notebook-multilang-mode))
+      (lsp-deferred)))
+  (add-hook 'python-mode-hook 'ein-notebook-activate-lsp)
   ;; Enable auto-completion and undo in notebooks
-  (setq ein:use-auto-complete t)
   (setq ein:worksheet-enable-undo t)
+  (setq ein:use-auto-complete nil) 
   ;; Keybindings for opening notebooks and connecting to a running Jupyter server
-  :bind (("C-c C-j l" . ein:notebooklist-login)))
+  :bind (("C-c C-j l" . ein:notebooklist-login)
+	 ("C-c C-x d" . ein:worksheet-delete-cell)))
+
+;; Configure company-mode for Python
+(use-package company
+  :ensure t
+  :hook ((python-mode . company-mode)
+         (lsp-mode . company-mode))
+  :bind (:map company-active-map
+              ("<tab>" . company-complete-selection) ;; Use TAB to select completion
+              ("RET" . company-complete-selection))  ;; Use Enter to confirm
+  :bind (:map company-mode-map
+              ("<tab>" . company-indent-or-complete-common))) ;; Use TAB for completion or indentation
 
 (use-package lsp-mode
   :ensure t
-  :init
-  (setq lsp-completion-provider :capf) ;; Use lsp-mode's built-in completion-at-point function
   :config
-  ;; Register custom settings for pylsp
-  (lsp-register-custom-settings
-   '(("pyls.plugins.pyls_black.enabled" t t)
-     ("pyls.plugins.pyls_isort.enabled" t t)
-     ("pyls.plugins.pyls_mypy.enabled" t t)
-     ("pyls.plugins.pyls_mypy.live_mode" nil t)
-     ("pyls.plugins.pyls_autopep8.enabled" nil t))) ;; Disable autopep8 if black is enabled
-  :hook
-  ((python-mode . lsp)
-   (lsp-mode . lsp-enable-which-key-integration))
-  :bind (:map lsp-mode-map
-              ("C-<tab>" . completion-at-point)
-              ("C-d p" . lsp-describe-thing-at-point)))
-
+  (setq lsp-log-io t)
+  (setq lsp-pylsp-server-command '("/Users/dguim/Library/Python/3.9/bin/pylsp"))
+  :hook (python-mode . lsp))
 
 ;; color theme
 (use-package color-theme-sanityinc-tomorrow
@@ -224,6 +223,9 @@
 (setq inferior-lisp-program "/usr/local/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 
+;; Set root rights for ddapi ssh config
+(setq tramp-default-proxies-alist
+      '(("ddapi" "\\`root\\'" "/ssh:ddapi:")))
 
 ;; Set org todo tags
 (setq org-todo-keywords
@@ -292,7 +294,7 @@
    '("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(elpy-rpc-python-command "python3")
  '(package-selected-packages
-   '(poetry gptel company-lsp pyvenv js2-mode jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
+   '(lsp-pyright poetry gptel company-lsp pyvenv js2-mode jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
  '(warning-suppress-types
    '(((package reinitialization))
      ((package reinitialization)))))

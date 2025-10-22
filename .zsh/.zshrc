@@ -58,7 +58,8 @@ sgrep() {
   done
 }
 ## aliases
-alias ll='ls -axlt'
+alias ll='ls -al | awk '\''{ if ($1 ~ /^d/) print $0 }'\'' ; ls -al | awk '\''{ if ($1 !~ /^d/) print $0 }'\'''
+
 # The following third party configurations should be configured by the
 # application itself.
 emacs(){

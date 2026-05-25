@@ -25,6 +25,9 @@ export PATH="$HOME/Library/flutter/bin:$PATH"
 export PATH="$HOME/Library/Android/sdk/tools/bin:$PATH"
 export PATH="$HOME/Library/Android/sdk/tools:$PATH"
 export PATH="$HOME/Library/Android/sdk/platform-tools:$PATH"
+# Claude Code: auto-connect to Monet (Emacs IDE bridge) when running
+export ENABLE_IDE_INTEGRATION=t
+
 # configuring pyenv
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"

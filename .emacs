@@ -8,6 +8,7 @@
     (tool-bar-mode -1))
 ;; Uncomment to debug .emacs
 (setq debug-on-error t)
+(setq native-comp-async-report-warnings-errors 'silent)
 
 ;; Adding package archive sources
 (require 'package)
@@ -75,7 +76,54 @@
     (exec-path-from-shell-initialize)))
 
 (use-package flycheck
-  :ensure t)
+  :ensure t
+  :config
+  (global-flycheck-mode -1))
+
+;; Monet — Claude Code IDE protocol bridge via WebSocket.
+;; Run Claude in an external terminal (Ghostty/Kitty/iTerm2),
+;; Monet provides diffs, diagnostics, file opening back in Emacs.
+(unless (package-installed-p 'monet)
+  (message "Monet not installed — run: M-x package-vc-install RET https://github.com/stevemolitor/monet RET"))
+
+(use-package monet
+  :after flycheck
+  :config
+  (setq monet-prefix-key "C-c m")
+  ;; Use ediff for reviewing Claude's proposed changes
+  (setq monet-diff-tool #'monet-ediff-tool)
+  (setq monet-diff-cleanup-tool #'monet-ediff-cleanup-tool)
+  ;; Start monet-mode globally for keybindings
+  (monet-mode 1)
+
+  ;; Auto-start Monet server when visiting a project file
+  (defun monet-auto-start-server ()
+    "Auto-start a Monet server for the current project if not already running."
+    (when (and monet-mode buffer-file-name)
+      (let* ((context (monet--get-session-context))
+             (base-key (car context))
+             (directory (cdr context)))
+        (unless (gethash base-key monet--sessions)
+          (condition-case err
+              (progn
+                (monet-start-server-in-directory base-key directory)
+                (message "Monet: auto-started server for '%s'" base-key))
+            (error
+             (message "Monet: failed to auto-start for '%s': %s"
+                      base-key (error-message-string err))))))))
+
+  (add-hook 'find-file-hook #'monet-auto-start-server))
+
+;; Auto-revert buffers when files change on disk (e.g. Claude Code edits)
+(global-auto-revert-mode 1)
+
+;; Highlight changed lines in the margin via git diff
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode 1)
+  (diff-hl-margin-mode 1)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
 (use-package poetry
  :ensure t)
@@ -117,6 +165,17 @@
   :bind (("C-c C-j l" . ein:notebooklist-login)
 	 ("C-c C-x d" . ein:worksheet-delete-cell)))
 
+;; disable lsp when using tramp
+(defun disable-lsp-in-tramp ()
+  "Prevent LSP from starting in TRAMP buffers."
+  (when (file-remote-p default-directory)
+    (message "Disabling LSP for TRAMP buffer: %s" (buffer-name))
+    (setq-local lsp-mode nil)
+    (setq-local lsp-enabled-clients nil)))
+
+(add-hook 'find-file-hook #'disable-lsp-in-tramp)
+(setq lsp-enable-remote-connection nil)
+
 ;; Configure company-mode for Python
 (use-package company
   :ensure t
@@ -140,8 +199,6 @@
   :ensure
   :config (load-theme 'sanityinc-tomorrow-eighties t))
 
-;; text marking
-(global-set-key (kbd "C-c m") 'er/expand-region)
 
 (setq imagemagick '(imagemagick :programs ("latex" "convert")
                                 :description "pdf > png"
@@ -235,7 +292,11 @@
         ("IN-PROGRESS" . "darkviolet")
         ("REFACTOR" . "blue")
         ("DELEGATED" . "brown")
-        ("DONE" .  "darkgreen")))
+        ("DONE" . (:foreground "darkgreen" :strike-through nil))))
+(with-eval-after-load 'org
+  (set-face-attribute 'org-done nil :strike-through nil)
+  (when (facep 'org-headline-done)
+    (set-face-attribute 'org-headline-done nil :strike-through nil)))
 
 ;; Efective Keyboard Cmds
 (setq ns-function-modifier 'super)
@@ -291,13 +352,14 @@
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(sanityinc-tomorrow-eighties))
  '(custom-safe-themes
-   '("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
+   '("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d"
+     default))
  '(elpy-rpc-python-command "python3")
- '(package-selected-packages
-   '(lsp-pyright poetry gptel company-lsp pyvenv js2-mode jump-char elpy jedi-direx jedi rjsx-mode load-relative color-theme-sanityinc-tomorrow-eighties lsp-mode helm-core docker-tramp helm-lsp which-key yasnippet flycheck projectile use-package company lsp-java markdown-mode swift-mode json-mode yaml-mode omnisharp csharp-mode s-buffer multiple-cursors magit iy-go-to-char htmlize fill-column-indicator expand-region ess ein color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cider-eval-sexp-fu cider))
+ '(package-selected-packages nil)
+ '(package-vc-selected-packages
+   '((monet :vc-backend Git :url "https://github.com/stevemolitor/monet")))
  '(warning-suppress-types
-   '(((package reinitialization))
-     ((package reinitialization)))))
+   '(((package reinitialization)) ((package reinitialization)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

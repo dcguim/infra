@@ -23,9 +23,13 @@ function poetryenv() {
         return 1
     fi
 }
+
+# fix empty git repo fatal error
 function chpwd {
-  if ! [ -z $(git rev-parse --git-dir 2>/dev/null) ];
-  then export BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  if git rev-parse --git-dir > /dev/null 2>&1; then
+    if git rev-parse --abbrev-ref HEAD > /dev/null 2>&1; then
+      export BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    fi
   fi
 }
 # smarter grep
@@ -57,17 +61,25 @@ sgrep() {
     fi
   done
 }
-## aliases
-alias ll='ls -al | awk '\''{ if ($1 ~ /^d/) print $0 }'\'' ; ls -al | awk '\''{ if ($1 !~ /^d/) print $0 }'\'''
 
-# The following third party configurations should be configured by the
-# application itself.
-emacs(){
-  nohup emacs "$@" &
+ll() {
+  ls -alt "$@" | awk 'NR>1 && /^d/'
+  ls -alt "$@" | awk 'NR==1 || (NR>1 && !/^d/)'
 }
 
 ## hook direnv into the shell
 eval "$(direnv hook zsh)"
+
+treeprint() {
+  # Check if we're in a git repository
+  if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    git log --graph --decorate --color \
+      --pretty=format:"%C(yellow)%h %C(green)%ad %C(cyan)%an%Creset - %C(white)%s" \
+      --date=short
+  else
+    echo "❌ Not inside a git repository."
+  fi
+}
 
 ## GCP util
 # The next line updates PATH for the Google Cloud SDK.
@@ -75,3 +87,18 @@ if [ -f '/Users/dguim/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/dguim/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/dguim/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+
+export PNPM_HOME="/Users/dguim/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+source "/Users/dguim/.openclaw/completions/openclaw.zsh"
+emacs(){
+if [ -n "$1" ]; then
+  nohup emacsclient --alternate-editor=emacsserver "$1" >/dev/null 2>&1 &
+else
+  nohup emacsclient --alternate-editor=emacsserver ./ >/dev/null 2>&1 &
+fi
+}

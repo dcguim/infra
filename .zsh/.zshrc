@@ -95,10 +95,27 @@ case ":$PATH:" in
 esac
 
 source "/Users/dguim/.openclaw/completions/openclaw.zsh"
+EMACS_APP="/Applications/emacs/nextstep/Emacs.app/Contents/MacOS"
 emacs(){
-if [ -n "$1" ]; then
-  nohup emacsclient --alternate-editor=emacsserver "$1" >/dev/null 2>&1 &
-else
-  nohup emacsclient --alternate-editor=emacsserver ./ >/dev/null 2>&1 &
-fi
+  "$EMACS_APP/bin/emacsclient" -c -a "$EMACS_APP/Emacs" "${1:-.}" &>/dev/null &
+}
+
+# Initialize a Python project with virtualenv + direnv for Emacs LSP
+pyinit() {
+  local venv_name="${1:-venv}"
+  if [ -f ".envrc" ]; then
+    echo ".envrc already exists, skipping"
+    return 0
+  fi
+  echo "Creating virtualenv '$venv_name'..."
+  python3 -m venv "$venv_name" || { echo "Failed to create venv"; return 1; }
+  echo "Writing .envrc for direnv..."
+  cat > .envrc <<EOF
+export VIRTUAL_ENV=\$PWD/$venv_name
+PATH_add "\$VIRTUAL_ENV/bin"
+EOF
+  direnv allow .
+  echo "Installing python-lsp-server for Emacs LSP..."
+  "$venv_name/bin/pip" install python-lsp-server || { echo "Failed to install pylsp"; return 1; }
+  echo "Done! Open a .py file here and LSP will use $venv_name."
 }

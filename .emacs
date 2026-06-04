@@ -18,8 +18,8 @@
 ;; melpa
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
-;;  marmalade
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+;;  marmalade (defunct — removed)
+;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 ;; setting use-package
 (condition-case nil
@@ -45,6 +45,12 @@
 	     :config
 	     (setq fci-rule-column 80))
 
+
+;; TypeScript / TSX syntax highlighting
+(use-package typescript-mode
+  :ensure t
+  :mode (("\\.ts\\'" . typescript-mode)
+         ("\\.tsx\\'" . typescript-mode)))
 
 ;; Enable org-mode on files ending with *.org
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
@@ -75,10 +81,6 @@
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 
-(use-package flycheck
-  :ensure t
-  :config
-  (global-flycheck-mode -1))
 
 ;; Monet — Claude Code IDE protocol bridge via WebSocket.
 ;; Run Claude in an external terminal (Ghostty/Kitty/iTerm2),
@@ -87,7 +89,6 @@
   (message "Monet not installed — run: M-x package-vc-install RET https://github.com/stevemolitor/monet RET"))
 
 (use-package monet
-  :after flycheck
   :config
   (setq monet-prefix-key "C-c m")
   ;; Use ediff for reviewing Claude's proposed changes
@@ -190,9 +191,13 @@
 (use-package lsp-mode
   :ensure t
   :config
-  (setq lsp-log-io t)
-  (setq lsp-pylsp-server-command '("/Users/dguim/Library/Python/3.9/bin/pylsp"))
-  :hook (python-mode . lsp))
+  (setq lsp-log-io nil)
+  (setq lsp-pylsp-server-command '("pylsp"))
+  (setq lsp-diagnostics-provider :none)
+  :hook (python-mode . lsp-deferred))
+
+;; Ensure direnv loads before LSP starts
+(add-hook 'lsp-before-initialize-hook #'direnv-update-directory-environment)
 
 ;; color theme
 (use-package color-theme-sanityinc-tomorrow

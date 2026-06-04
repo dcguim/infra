@@ -113,7 +113,15 @@
              (message "Monet: failed to auto-start for '%s': %s"
                       base-key (error-message-string err))))))))
 
-  (add-hook 'find-file-hook #'monet-auto-start-server))
+  (add-hook 'find-file-hook #'monet-auto-start-server)
+
+  ;; Raise Emacs frame when Claude sends a diff via Monet
+  (when (eq system-type 'darwin)
+    (advice-add 'monet--tool-open-diff-handler :after
+                (lambda (&rest _)
+                  (call-process "osascript" nil 0 nil
+                                "-e" (format "tell application \"System Events\" to set frontmost of (first process whose unix id is %d) to true"
+                                             (emacs-pid)))))))
 
 ;; Auto-revert buffers when files change on disk (e.g. Claude Code edits)
 (global-auto-revert-mode 1)

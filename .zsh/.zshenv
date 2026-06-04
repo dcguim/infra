@@ -5,6 +5,8 @@ export PATH="$HOME/.local/bin:$PATH"
 # set java home directory
 export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_331.jdk/Contents/Home"
 export LANGCHAIN_TRACING_V2=true
+# API keys and credentials loaded from ~/.secrets (not tracked by git)
+[ -f "$HOME/work/infra/.secrets" ] && source "$HOME/work/infra/.secrets"
 # native compilation support for emacs (libgccjit needs linker paths)
 export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib:/opt/homebrew/lib/gcc/current"
 # add path for brew binaries

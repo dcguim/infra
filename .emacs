@@ -204,6 +204,18 @@
   (setq lsp-diagnostics-provider :none)
   :hook (python-mode . lsp-deferred))
 
+;; Auto-detect venv and point pylsp's jedi at it
+(defun lsp-pylsp-set-jedi-environment ()
+  "Set jedi environment to the project's venv if one exists."
+  (let* ((root (or (lsp-workspace-root) default-directory))
+         (venv (cl-find-if #'file-directory-p
+                           (mapcar (lambda (d) (expand-file-name d root))
+                                   '("venv" ".venv" "env")))))
+    (when venv
+      (setq-local lsp-pylsp-plugins-jedi-environment venv))))
+
+(add-hook 'python-mode-hook #'lsp-pylsp-set-jedi-environment)
+
 ;; Ensure direnv loads before LSP starts
 (add-hook 'lsp-before-initialize-hook #'direnv-update-directory-environment)
 
